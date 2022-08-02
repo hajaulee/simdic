@@ -70,7 +70,7 @@
   </ng-container>
 </ng-container>
 
-<mat-card *ngIf="!searchKey" style="margin: 0.5em">
+<mat-card *ngIf="!searchKey && this.searchHistory.length" style="margin: 0.5em">
   <ng-container *ngFor="let word of searchHistory">
     <div matRipple style="margin-top: 1em;" (click)="selected=true;onSearchValueChanged(word.word)">
       <div>
