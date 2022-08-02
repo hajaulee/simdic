@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4321",
-    "build": "rm -rf docs/* && ng build  --base-href /simdic/ && cp -r dist/simdic/* docs",
+    "build": "rm -rf docs/* && ng build --prod --base-href /simdic/ && cp -r dist/simdic/* docs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
