@@ -1,3 +1,7 @@
+<mat-toolbar>
+  <span>Simdic</span>
+</mat-toolbar>
+
 <p style="padding: 1em 1em 0;">
   <mat-form-field class="full-width" appearance="outline">
     <mat-label>Search</mat-label>
@@ -9,48 +13,72 @@
            [(ngModel)]="searchKey"
            (ngModelChange)="onSearchValueChanged($event)"
            (change)="selected = true"
-           [matAutocomplete]="suggest">
+           [matAutocomplete]="suggest"
+           #inputSearch
+    >
+    <button *ngIf="searchKey" matSuffix mat-icon-button aria-label="Clear" (click)="searchKey='';showMean=false;">
+      <mat-icon>close</mat-icon>
+    </button>
     <mat-autocomplete autoActiveFirstOption #suggest="matAutocomplete">
-      <mat-option *ngFor="let option of suggestWords$ | async as suggestWords" [value]="option.word">
+      <mat-option *ngFor="let word of suggestWords$ | async as suggestWords" [value]="word.word"
+                  (click)="saveHistory(word)">
         <span style="display: block;margin-top: -1em">
-          <span style="font-weight: bold;margin-right: 0.3em">{{option.word}}</span>
-          <span class="mat-body-2">{{option.pronoun}}</span>
+          <span style="font-weight: bold;margin-right: 0.3em">{{word.word}}</span>
+          <span class="mat-body-2">{{word.pronoun}}</span>
         </span>
-        <span style="display: block;margin-top: -1em" class="mat-caption">{{option.mean}}</span>
+        <span style="display: block;margin-top: -1em" class="mat-caption">{{word.mean}}</span>
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>
 </p>
 
 
-<ng-container *ngIf="wordSearch$ | async as wordSearch" style="margin: 0.5em">
-  <mat-card *ngIf="meanLoaded">
-    <span class="mat-headline" style="color: red;font-weight: bold">{{wordSearch.word}}</span>
-    <br>
-    <span style="margin-bottom: 1em">{{wordSearch.phonetic}}</span>
-    <div *ngFor="let mean of wordSearch.wordMeans; let i = index">
-      <div style="color: #d22f0f;margin-top: 1em" *ngIf="mean.kind && mean.kind != wordSearch.wordMeans[i-1]?.kind">
-        ☆ {{getKind(mean.kind)}}</div>
-      <span class="mat-subheading-2" style="color: blue">◆ {{mean.mean}}</span>
-      <div *ngFor="let exam of mean.examples" style="padding-left: 0.5em; margin-top: 1em">
-        <span style="color: red">{{exam.content}}</span>
-        <br>
-        <span>{{exam.mean}}</span>
+<ng-container *ngIf="showMean">
+  <ng-container *ngIf="wordSearch$ | async as wordSearch">
+    <mat-card *ngIf="!meanLoading" style="margin: 0.5em">
+      <span class="mat-headline" style="color: red;font-weight: bold">{{wordSearch.word}}</span>
+      <br>
+      <span style="margin-bottom: 1em">{{wordSearch.phonetic}}</span>
+      <div *ngFor="let mean of wordSearch.wordMeans; let i = index">
+        <div style="color: #d22f0f;margin-top: 1em" *ngIf="mean.kind && mean.kind != wordSearch.wordMeans[i-1]?.kind">
+          ☆ {{getKind(mean.kind)}}</div>
+        <span class="mat-subheading-2" style="color: blue">◆ {{mean.mean}}</span>
+        <div *ngFor="let exam of mean.examples" style="padding-left: 0.5em; margin-top: 1em">
+          <span style="color: red">{{exam.content}}</span>
+          <br>
+          <span>{{exam.mean}}</span>
+        </div>
       </div>
+      <mat-divider></mat-divider>
+      <ng-container *ngIf="wordComments$ | async as wordComments">
+        <p style="margin-top: 1em">Cộng đồng:</p>
+        <div *ngFor="let comment of wordComments">
+          <div style="margin-top: 1em">{{comment.comment}}</div>
+          <div class="mat-caption" style="display: flex;align-items: baseline">
+            <span style="margin-top: 0.5em" class="mat-caption">👍{{comment.like}}</span>
+            <span style="margin-left: 2em">👎 {{comment.dislike}}</span>
+            <span style="flex: 1 1 auto"></span>
+            <span>{{comment.author}}</span>
+          </div>
+          <mat-divider style="margin-top: 0.1em; left: 1em; width: calc(100% - 2em)"></mat-divider>
+        </div>
+      </ng-container>
+    </mat-card>
+  </ng-container>
+  <ng-container *ngIf="meanLoading">
+    <mat-progress-bar style="width: calc(100% - 2em);margin-left: 1em;" mode="query"></mat-progress-bar>
+  </ng-container>
+</ng-container>
+
+<mat-card *ngIf="!searchKey" style="margin: 0.5em">
+  <ng-container *ngFor="let word of searchHistory">
+    <div matRipple style="margin-top: 1em;" (click)="selected=true;onSearchValueChanged(word.word)">
+      <div>
+        <span style="font-weight: bold;margin-right: 0.3em">{{word.word}}</span>
+        <span class="mat-body-2">{{word.pronoun}}</span>
+      </div>
+      <div class="mat-caption">{{word.mean}}</div>
     </div>
     <mat-divider></mat-divider>
-    <ng-container *ngIf="wordComments$ | async as wordComments">
-      <p style="margin-top: 1em">Cộng đồng:</p>
-      <div *ngFor="let comment of wordComments">
-        <div style="margin-top: 1em">{{comment.comment}}</div>
-        <div class="mat-caption" style="display: flex;align-items: baseline">
-          <span style="margin-top: 0.5em" class="mat-caption">👍{{comment.like}}</span>
-          <span style="margin-left: 2em">👎 {{comment.dislike}}</span>
-          <span style="flex: 1 1 auto"></span>
-          <span>{{comment.author}}</span>
-        </div>
-        <mat-divider style="margin-top: 0.1em; left: 1em; width: calc(100% - 2em)"></mat-divider>
-      </div>
-    </ng-container>
-  </mat-card>
-</ng-container>
+  </ng-container>
+</mat-card>

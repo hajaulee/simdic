@@ -5,12 +5,13 @@ import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
-import {MatOptionModule} from "@angular/material/core";
+import {MatOptionModule, MatRippleModule} from "@angular/material/core";
 import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
 import {FormsModule} from "@angular/forms";
 import {MatCardModule} from "@angular/material/card";
 import {MatDividerModule} from "@angular/material/divider";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
 
 
 
@@ -32,7 +33,9 @@ import {MatDividerModule} from "@angular/material/divider";
     MatButtonModule,
     FormsModule,
     MatCardModule,
-    MatDividerModule
+    MatDividerModule,
+    MatProgressBarModule,
+    MatRippleModule
   ]
 })
 export class PagesModule { }

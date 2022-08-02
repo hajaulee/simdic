@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {DictionaryService} from "../../services/dictionary.service";
 import {Observable, ReplaySubject} from "rxjs";
 import {filter, map, publishReplay, refCount, switchMap, tap} from "rxjs/operators";
@@ -42,8 +42,9 @@ interface WordComment {
   styleUrls: ['./main.component.scss']
 })
 export class MainComponent implements OnInit {
+  @ViewChild("inputSearch") inputSearch!: ElementRef;
 
-  //
+  // Constants
   kindMap = {
     'n': 'danh từ',
     'vs': 'danh từ hoặc giới từ làm trợ từ cho động từ suru',
@@ -52,6 +53,7 @@ export class MainComponent implements OnInit {
     'ik': 'từ chứa kana bất quy tắc',
     'adj-no': 'danh từ sở hữu cách thêm の'
   } as any;
+
   // Source streams
   searchKeyChanged$ = new ReplaySubject<string>(1);
   searchKeySelected$ = new ReplaySubject<string>(1);
@@ -64,7 +66,10 @@ export class MainComponent implements OnInit {
   // Normal values
   searchKey: string = '';
   selected: boolean = false;
-  meanLoaded: boolean = false;
+  showMean: boolean = false;
+  meanLoading: boolean = false;
+
+  searchHistory: SuggestWord[] = [];
 
   constructor(
     protected dictionaryServices: DictionaryService
@@ -86,9 +91,6 @@ export class MainComponent implements OnInit {
             }
           }) : []
       }),
-      tap(() => {
-        this.meanLoaded = false;
-      }),
       publishReplay(1),
       refCount()
     );
@@ -105,7 +107,7 @@ export class MainComponent implements OnInit {
           : {} as any;
       }),
       tap(() => {
-        this.meanLoaded = true;
+        this.meanLoading = false;
       }),
       publishReplay(1),
       refCount()
@@ -124,20 +126,30 @@ export class MainComponent implements OnInit {
           author: result.username
         })) : [];
       }),
-      tap((data) => {
-        console.log(data);
-      }),
       publishReplay(1),
       refCount()
-    )
+    );
+
+
+    setTimeout(() => {
+      this.inputSearch.nativeElement.focus();
+    });
+    this.loadHistory();
   }
 
   onSearchValueChanged(value: string) {
+    this.searchKey = value;
     if (this.selected) {
       this.searchKeySelected$.next(value);
       this.selected = false;
+      this.showMean = true;
+      this.meanLoading = true;
+      setTimeout(() => {
+        this.inputSearch.nativeElement.blur();
+      });
     } else {
       this.searchKeyChanged$.next(value);
+      this.showMean = false;
     }
   }
 
@@ -153,6 +165,16 @@ export class MainComponent implements OnInit {
     setTimeout(() => {
       console.log(this.searchKey)
     })
+  }
+
+  loadHistory() {
+    this.searchHistory = JSON.parse(localStorage.getItem("searchHistory") || '[]');
+  }
+
+  saveHistory(word: SuggestWord) {
+    this.searchHistory.unshift(word);
+    localStorage.setItem("searchHistory", JSON.stringify(this.searchHistory));
+    console.log(this.searchHistory);
   }
 
 }
