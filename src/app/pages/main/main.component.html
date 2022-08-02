@@ -1,0 +1,55 @@
+<p style="padding: 1em 1em 0;">
+  <mat-form-field class="full-width" appearance="outline">
+    <mat-label>Search</mat-label>
+    <input type="text"
+           placeholder="Nihongo"
+           aria-label="Search"
+           matInput
+           [(ngModel)]="searchKey"
+           (ngModelChange)="onSearchValueChanged($event)"
+           (change)="selected = true"
+           [matAutocomplete]="suggest">
+    <mat-autocomplete autoActiveFirstOption #suggest="matAutocomplete">
+      <mat-option *ngFor="let option of suggestWords$ | async as suggestWords" [value]="option.word">
+        <span style="display: block;margin-top: -1em">
+          <span style="font-weight: bold;margin-right: 0.3em">{{option.word}}</span>
+          <span class="mat-body-2">{{option.pronoun}}</span>
+        </span>
+        <span style="display: block;margin-top: -1em" class="mat-caption">{{option.mean}}</span>
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+</p>
+
+
+<ng-container *ngIf="wordSearch$ | async as wordSearch" style="margin: 0.5em">
+  <mat-card *ngIf="meanLoaded">
+    <span class="mat-headline" style="color: red;font-weight: bold">{{wordSearch.word}}</span>
+    <br>
+    <span style="margin-bottom: 1em">{{wordSearch.phonetic}}</span>
+    <div *ngFor="let mean of wordSearch.wordMeans; let i = index">
+      <div style="color: #d22f0f;margin-top: 1em" *ngIf="mean.kind && mean.kind != wordSearch.wordMeans[i-1]?.kind">
+        ☆ {{getKind(mean.kind)}}</div>
+      <span class="mat-subheading-2" style="color: blue">◆ {{mean.mean}}</span>
+      <div *ngFor="let exam of mean.examples" style="padding-left: 0.5em; margin-top: 1em">
+        <span style="color: red">{{exam.content}}</span>
+        <br>
+        <span>{{exam.mean}}</span>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <ng-container *ngIf="wordComments$ | async as wordComments">
+      <p style="margin-top: 1em">Cộng đồng:</p>
+      <div *ngFor="let comment of wordComments">
+        <div style="margin-top: 1em">{{comment.comment}}</div>
+        <div class="mat-caption" style="display: flex;align-items: baseline">
+          <span style="margin-top: 0.5em" class="mat-caption">👍{{comment.like}}</span>
+          <span style="margin-left: 2em">👎 {{comment.dislike}}</span>
+          <span style="flex: 1 1 auto"></span>
+          <span>{{comment.author}}</span>
+        </div>
+        <mat-divider style="margin-top: 0.1em; left: 1em; width: calc(100% - 2em)"></mat-divider>
+      </div>
+    </ng-container>
+  </mat-card>
+</ng-container>
