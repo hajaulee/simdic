@@ -12,7 +12,6 @@
            matInput
            [(ngModel)]="searchKey"
            (ngModelChange)="onSearchValueChanged($event)"
-           (change)="selected = true"
            [matAutocomplete]="suggest"
            #inputSearch
     >
@@ -21,7 +20,7 @@
     </button>
     <mat-autocomplete autoActiveFirstOption #suggest="matAutocomplete">
       <mat-option *ngFor="let word of suggestWords$ | async as suggestWords" [value]="word.word"
-                  (click)="saveHistory(word)">
+                  (click)="onSearchValueSelected(word.word);saveHistory(word)">
         <span style="display: block;margin-top: -1em">
           <span style="font-weight: bold;margin-right: 0.3em">{{word.word}}</span>
           <span class="mat-body-2">{{word.pronoun}}</span>
@@ -72,7 +71,7 @@
 
 <mat-card *ngIf="!searchKey && this.searchHistory.length" style="margin: 0.5em">
   <ng-container *ngFor="let word of searchHistory">
-    <div matRipple style="margin-top: 1em;" (click)="selected=true;onSearchValueChanged(word.word)">
+    <div matRipple style="margin-top: 1em;" (click)="onSearchValueSelected(word.word)">
       <div>
         <span style="font-weight: bold;margin-right: 0.3em">{{word.word}}</span>
         <span class="mat-body-2">{{word.pronoun}}</span>

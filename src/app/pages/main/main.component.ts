@@ -65,7 +65,6 @@ export class MainComponent implements OnInit {
 
   // Normal values
   searchKey: string = '';
-  selected: boolean = false;
   showMean: boolean = false;
   meanLoading: boolean = false;
 
@@ -138,19 +137,18 @@ export class MainComponent implements OnInit {
   }
 
   onSearchValueChanged(value: string) {
+    this.searchKeyChanged$.next(value);
+    this.showMean = false;
+  }
+
+  onSearchValueSelected(value: string) {
     this.searchKey = value;
-    if (this.selected) {
-      this.searchKeySelected$.next(value);
-      this.selected = false;
-      this.showMean = true;
-      this.meanLoading = true;
-      setTimeout(() => {
-        this.inputSearch.nativeElement.blur();
-      });
-    } else {
-      this.searchKeyChanged$.next(value);
-      this.showMean = false;
-    }
+    this.searchKeySelected$.next(value);
+    this.showMean = true;
+    this.meanLoading = true;
+    setTimeout(() => {
+      this.inputSearch.nativeElement.blur();
+    });
   }
 
   getKind(kind: string) {
