@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {DictionaryService} from "../../services/dictionary.service";
 import {Observable, ReplaySubject} from "rxjs";
 import {filter, map, publishReplay, refCount, switchMap, tap} from "rxjs/operators";
@@ -72,6 +72,7 @@ export class MainComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
     this.suggestWords$ = this.searchKeyChanged$.pipe(
       switchMap((searchKey) => this.dictionaryServices.getSuggest(searchKey)),
       map((data) => {
